@@ -8,9 +8,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'maven'
+      - uses: lorislab/install-samo-action@v2
+      - id: project_version
+        run: echo "stdout=$(samo project version)" >> $GITHUB_OUTPUT           
+      - name: Build project
+        run: echo "mvn -ntp -B -e clean package -Dquarkus.application.version=${{ steps.project_version.outputs.stdout }}"
       - uses: peter-evans/repository-dispatch@v1
         with:
           token: ${{ secrets.CI_PAT }}
           repository: andrejpetras/pipe-test
           event-type: update-helm-log
-          client-payload: '{"repo": "${{ github.repository }}", "sha": "${{ github.sha }}"}'
+          client-payload: '{"repo": "${{ github.repository }}", "version": "${{ steps.project_version.outputs.stdout }}"}'
