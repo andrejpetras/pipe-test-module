@@ -1,0 +1,16 @@
+name: update
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.CI_PAT }}
+          repository: andrejpetras/pipe-test
+          event-type: update-helm-log
+          client-payload: '{"repo": "${{ github.repository }}", "sha": "${{ github.sha }}"}'
