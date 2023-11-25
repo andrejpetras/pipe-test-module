@@ -29,4 +29,4 @@ jobs:
           token: ${{ secrets.CI_PAT }}
           repository: andrejpetras/pipe-test
           event-type: update-helm-log
-          client-payload: '{"repo": "$REPO_NAME", "version": "${{ steps.project_version.outputs.stdout }}"}'
+          client-payload: '{"repo": "${REPO_NAME}", "version": "${{ steps.project_version.outputs.stdout }}"}'
