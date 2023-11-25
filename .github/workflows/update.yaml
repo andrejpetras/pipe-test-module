@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      REPO_NAME: ${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}    
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,10 +23,10 @@ jobs:
       - id: project_version
         run: echo "stdout=$(samo project version)" >> $GITHUB_OUTPUT           
       - name: Build project
-        run: echo "mvn -ntp -B -e clean package -Dquarkus.application.version=${{ steps.project_version.outputs.stdout }}"
+        run: |
+          echo "${REPO_NAME}"
+          echo "mvn -ntp -B -e clean package -Dquarkus.application.version=${{ steps.project_version.outputs.stdout }}"
       - uses: peter-evans/repository-dispatch@v1
-        env:
-          REPO_NAME: ${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}
         with:
           token: ${{ secrets.CI_PAT }}
           repository: andrejpetras/pipe-test
