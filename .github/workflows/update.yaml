@@ -7,8 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      REPO_NAME: ${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}    
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,13 +20,15 @@ jobs:
       - uses: lorislab/install-samo-action@v2
       - id: project_version
         run: echo "stdout=$(samo project version)" >> $GITHUB_OUTPUT           
+      - id: repository_name
+        run: echo "stdout=${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}" >> $GITHUB_OUTPUT               
       - name: Build project
         run: |
-          echo "${REPO_NAME}"
+          echo ${{ steps.repository_name.outputs.stdout }}
           echo "mvn -ntp -B -e clean package -Dquarkus.application.version=${{ steps.project_version.outputs.stdout }}"
       - uses: peter-evans/repository-dispatch@v1
         with:
           token: ${{ secrets.CI_PAT }}
           repository: andrejpetras/pipe-test
           event-type: update-helm-log
-          client-payload: '{"repo": "${REPO_NAME}", "version": "${{ steps.project_version.outputs.stdout }}"}'
+          client-payload: '{"repo": "${{ steps.repository_name.outputs.stdout }}", "version": "${{ steps.project_version.outputs.stdout }}"}'
