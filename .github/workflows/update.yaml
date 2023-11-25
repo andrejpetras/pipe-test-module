@@ -23,8 +23,10 @@ jobs:
       - name: Build project
         run: echo "mvn -ntp -B -e clean package -Dquarkus.application.version=${{ steps.project_version.outputs.stdout }}"
       - uses: peter-evans/repository-dispatch@v1
+        env:
+          REPO_NAME: ${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}
         with:
           token: ${{ secrets.CI_PAT }}
           repository: andrejpetras/pipe-test
           event-type: update-helm-log
-          client-payload: '{"repo": "${{ github.repository }}", "version": "${{ steps.project_version.outputs.stdout }}"}'
+          client-payload: '{"repo": "$REPO_NAME", "version": "${{ steps.project_version.outputs.stdout }}"}'
